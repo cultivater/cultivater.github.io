@@ -184,9 +184,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
-      
 
-      <time title="Created: 2024-03-07 16:13:05 / Modified: 16:42:23" itemprop="dateCreated datePublished" datetime="2024-03-07T16:13:05+08:00">2024-03-07</time>
+      <time title="Created: 2024-03-07 16:13:05" itemprop="dateCreated datePublished" datetime="2024-03-07T16:13:05+08:00">2024-03-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2024-03-08 11:52:31" itemprop="dateModified" datetime="2024-03-08T11:52:31+08:00">2024-03-08</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -208,16 +214,25 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <p>写在前面：姑且还是作为一个记录技术的博客吧。 # 1. tokenizer的作用？
-在英文及某些拉丁语系中，词(word)是语义表达的最小粒度。而中文/日语这种语言中，word可以进一步被拆成字(char)来表示独立的语义。但其实用char-level来理解中文很不稳定，这也是为什么在BERT出现之前，中文的NLP任务会比英文多一个segmentation阶段：词的语义表达会相对更准确。</p>
-<p>进入pre-train时代后，模型处理文本的粒度从word更细分到token粒度，token可以是一个字、词、标识符等等。token相当于是一种word-&gt;char的中间态，它的出现主要是为了解决这两个问题：
-- OOV - 没有天然分隔符语言的分词问题</p>
+          <p>写在前面：现在兼职作为一个技术博客，随缘更新，取决于摸鱼时间多不多。</p>
+<h1 id="tokenizer的作用">1. tokenizer的作用？</h1>
+<p>在英文及某些拉丁语系中，词(word)是语义表达的最小粒度。而中文/日语这种语言中，word可以进一步被拆成字(char)来表示独立的语义。但其实用char-level来理解中文很不稳定，这也是为什么在BERT出现之前，中文的NLP任务会比英文多一个segmentation阶段：词的语义表达会相对更准确。</p>
+<p>进入pre-train时代后，模型处理文本的粒度从word更细分到token粒度，token可以是一个字、词、标识符等等。token相当于是一种word-&gt;char的中间态，它的出现主要是为了解决这两个问题：</p>
+<ul>
+<li>OOV</li>
+<li>没有天然分隔符语言的分词问题</li>
+</ul>
 <p>BERT tokenizer的例子： <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">model_path = <span class="string">&quot;bert-base-uncased&quot;</span></span><br><span class="line">tokenizer = BertTokenizer.from_pretrained(model_path)</span><br><span class="line">inputs = <span class="string">&quot;I am Haruki&quot;</span></span><br><span class="line"><span class="built_in">print</span>(tokenizer.tokenize(inputs))</span><br><span class="line"><span class="comment"># [&#x27;i&#x27;, &#x27;am&#x27;, &#x27;ha&#x27;, &#x27;##ru&#x27;, &#x27;##ki&#x27;]</span></span><br></pre></td></tr></table></figure> i,
 am被正常切割，haruki为何被切成了3个token?</p>
 <p>实际上输出的token序列是根据Tokenizer中已经生成好的词表进行匹配（过程类似最大前向匹配），匹配过程中如果词表中存在该token就直接输出，没有就输出特殊符号[UNK]。因此本质上是Tokenizer中的词表决定生成文本切词方式，而决定Tokenizer中词表生成则是由不同的分词算法所决定。</p>
 <p>"I"，"am"存在于该Tokenizer的词表中，作为单个token，而"Haruki"在词表中并没有作为独立的token，在词表中存在匹配的token是"ha"，"##ru"，"##ki"。那么可以看出Tokenizer中的词表直接影响实际分词效果，那么这个Tokenizer分词器是怎么生成？
-先埋个坑，下次摸鱼时分别总结😋 - WordPiece (BERT) - BPE (RoBerta) - BBPE
-(GPT-2) - ULM (UniLM)</p>
+先埋个坑，下次摸鱼时分别总结😋</p>
+<ul>
+<li>WordPiece (BERT)</li>
+<li>BPE (RoBerta)</li>
+<li>BBPE (GPT-2)</li>
+<li>ULM (UniLM)</li>
+</ul>
 
       
     </div>
@@ -388,6 +403,12 @@ target="_blank" rel="noopener" href="https://github.com/sherlock-project">小工
   
 
 
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
 
 
 <script src="/js/third-party/comments/livere.js"></script>
