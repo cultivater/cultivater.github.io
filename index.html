@@ -115,16 +115,16 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-count">3</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
-        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-count">3</span>
         <span class="site-state-item-name">categories</span>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">tags</span>
       </div>
   </nav>
@@ -146,6 +146,86 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://cultivater.github.io/2024/03/08/distributed-DBSCAN/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Haruki">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Haruki's Weird Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | Haruki's Weird Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2024/03/08/distributed-DBSCAN/" class="post-title-link" itemprop="url">distributed_DBSCAN</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2024-03-08 17:08:42 / Modified: 17:11:16" itemprop="dateCreated datePublished" datetime="2024-03-08T17:08:42+08:00">2024-03-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/big-data/" itemprop="url" rel="index"><span itemprop="name">big data</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>挖坑，Pyspark 版本的<a
+target="_blank" rel="noopener" href="https://www.heywhale.com/mw/notebook/5fee6b75840381003bfec901">DBSCAN</a></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -191,7 +271,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2024-03-08 11:52:31" itemprop="dateModified" datetime="2024-03-08T11:52:31+08:00">2024-03-08</time>
+      <time title="Modified: 2024-03-11 11:08:51" itemprop="dateModified" datetime="2024-03-11T11:08:51+08:00">2024-03-11</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -232,6 +312,19 @@ am被正常切割，haruki为何被切成了3个token?</p>
 <li>BBPE (GPT-2)</li>
 <li>ULM (UniLM)</li>
 </ul>
+<h1 id="wordpiece">2. WordPiece</h1>
+<p>最早出现在<a
+target="_blank" rel="noopener" href="https://static.googleusercontent.com/media/research.google.com/zh-CN//pubs/archive/37842.pdf">Japanese
+and Korean voice search 2012</a>。一言蔽之，就是先拆后和：</p>
+<ul>
+<li>每个word拆成subword， 例如hello -&gt; h, ##e, ##l,
+##o。对语料库中所有subword统计词频</li>
+<li>计算subword之间的互信息，取最大的那一对，合并后加入词汇表中</li>
+<li>更新词频，重复迭代，直到词表大小达到预设值或者满足其它停止条件</li>
+</ul>
+<p>互信息： <span class="math display">\[\log P(t_z) - (\log P(t_x) +
+\log P(t_y))=\log (\frac{P(t_z)}{\log P(t_x)P(t_y)})\]</span></p>
+<p>两个词一起出现的概率比它们各自单独出现的概率要大时，即是它们需要合并的情况，而每次迭代会取互信息最大的那个。</p>
 
       
     </div>
@@ -407,7 +500,7 @@ target="_blank" rel="noopener" href="https://github.com/sherlock-project">小工
 
   
 
-  <script class="next-config" data-name="enableMath" type="application/json">false</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
 <script src="/js/third-party/math/mathjax.js"></script>
 
 
@@ -415,7 +508,7 @@ target="_blank" rel="noopener" href="https://github.com/sherlock-project">小工
 
 <script>
 var options = {
-  bottom: '800px',
+  bottom: '64px',
   right: '16px',
   left: 'unset',
   time: '0.5s',
