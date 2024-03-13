@@ -91,12 +91,15 @@ href="https://www.zhihu.com/question/52906217/answer/2495362710">分析</a></p>
     <url>/2024/03/07/tokenizer/</url>
     <content><![CDATA[<p>写在前面：现在兼职作为一个技术博客，随缘更新，取决于摸鱼时间多不多。</p>
 <h1 id="tokenizer的作用">1. tokenizer的作用？</h1>
-<p>在英文及某些拉丁语系中，词(word)是语义表达的最小粒度。而中文/日语这种语言中，word可以进一步被拆成字(char)来表示独立的语义。但其实用char-level来理解中文很不稳定，这也是为什么在BERT出现之前，中文的NLP任务会比英文多一个segmentation阶段：词的语义表达会相对更准确。</p>
-<p>进入pre-train时代后，模型处理文本的粒度从word更细分到token粒度，token可以是一个字、词、标识符等等。token相当于是一种word-&gt;char的中间态，它的出现主要是为了解决这两个问题：</p>
-<ul>
-<li>OOV</li>
-<li>没有天然分隔符语言的分词问题</li>
-</ul>
+<p>在英文及某些拉丁语系中，词(word)是语义表达的最小粒度。而中文/日语这种语言中，word可以进一步被拆成字(char)来表示独立的语义。但其实用char-level来理解中文很不稳定，一方面丢失了词的语义信息，另一方面，模型输入会变得很长，这使得模型的训练更加复杂难以收敛，这也是为什么在BERT出现之前，中文的NLP任务会比英文多一个segmentation阶段：词的语义表达会相对更准确。</p>
+<p>进入pre-train时代后，模型处理文本的粒度从word更细分到token粒度，token可以是一个字、词、标识符等等。token相当于是一种word-&gt;char的中间态，它的出现主要是为了解决这几个问题：</p>
+<ol type="1">
+<li>OOV，没见过的词统一被表示成<UNK></li>
+<li>低频词无法得到充分的学习</li>
+<li>词形变化，单复数，时态等同义词被不同的编码表示</li>
+<li>词表太大，尤其是多语言模型</li>
+<li>需要对没有天然分隔符语言额外进行分词</li>
+</ol>
 <p>BERT tokenizer的例子： <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">model_path = <span class="string">&quot;bert-base-uncased&quot;</span></span><br><span class="line">tokenizer = BertTokenizer.from_pretrained(model_path)</span><br><span class="line">inputs = <span class="string">&quot;I am Haruki&quot;</span></span><br><span class="line"><span class="built_in">print</span>(tokenizer.tokenize(inputs))</span><br><span class="line"><span class="comment"># [&#x27;i&#x27;, &#x27;am&#x27;, &#x27;ha&#x27;, &#x27;##ru&#x27;, &#x27;##ki&#x27;]</span></span><br></pre></td></tr></table></figure> i,
 am被正常切割，haruki为何被切成了3个token?</p>
 <p>实际上输出的token序列是根据Tokenizer中已经生成好的词表进行匹配（过程类似最大前向匹配），匹配过程中如果词表中存在该token就直接输出，没有就输出特殊符号[UNK]。因此本质上是Tokenizer中的词表决定生成文本切词方式，而决定Tokenizer中词表生成则是由不同的分词算法所决定。</p>
@@ -104,8 +107,7 @@ am被正常切割，haruki为何被切成了3个token?</p>
 先埋个坑，下次摸鱼时分别总结😋</p>
 <ul>
 <li>WordPiece (BERT)</li>
-<li>BPE (RoBerta)</li>
-<li>BBPE (GPT-2)</li>
+<li>BPE、BBPE (RoBerta, GPT-2)</li>
 <li>ULM (UniLM)</li>
 </ul>
 <h1 id="wordpiece">2. WordPiece</h1>
@@ -121,6 +123,23 @@ and Korean voice search 2012</a>。一言蔽之，就是先拆后和：</p>
 <p>互信息： <span class="math display">\[\log P(t_z) - (\log P(t_x) +
 \log P(t_y))=\log (\frac{P(t_z)}{\log P(t_x)P(t_y)})\]</span></p>
 <p>两个词一起出现的概率比它们各自单独出现的概率要大时，即是它们需要合并的情况，而每次迭代会取互信息最大的那个。</p>
+<h1 id="bpe-byte-pair-encoding">3. BPE (Byte Pair Encoding)</h1>
+<p>最早出自<a href="https://arxiv.org/pdf/1508.07909.pdf">Neural Machine
+Translation of Rare Words with Subword Units
+2015</a>，是一种数据压缩算法。GPT-2、RoBERTa、XLM
+使用的都是BPE/BBPE。算法步骤：</p>
+<ol type="1">
+<li>准备训练语料，设定词表大小；</li>
+<li>准备基础词表：比如英文中26个字母加上各种符号；</li>
+<li>基于基础词表将语料中的单词按照char粒度切开，并在末尾添加后缀“ &lt;/
+w&gt;”；本阶段的subword的粒度是字符。例如单词“
+low”的频率为5，那么我们将其改写为“ l o w &lt;/ w&gt;”：5；</li>
+<li>统计每一个连续字节对的出现频率，选择最高频的字符对合并成新的subword；</li>
+<li>重复第4步直到达到第1步设定的subword词表大小；或下一个最高频的字节对出现频率=1；</li>
+</ol>
+<p>单看每一轮操作完词表的数量可能增大，也可能减少。但整体上，随着合并的次数增加，词表总数通常先增大，后逐步减少到趋于一个稳定值。经典的贪心策略，很高效。</p>
+<h1 id="bbpe-byte-level-bpe">4. BBPE (Byte-level BPE)</h1>
+<p>BPE基本上解决了英文NLP中的问题1~4。但对于中文和日语来说，稀有字符仍然会占用词表空间，分词后的OOV问题仍然存在。考虑到任何语言都可用utf-8编码，所有的单词或者字符都是由字节拼接而成的，例如英文字符基本都是1个字节，中文汉字通常需要2～3个字节，BBPE考虑将一段文本的UTF-8编码中的一个字节：256位不同的编码作为词表的初始化基础Subword。</p>
 ]]></content>
       <categories>
         <category>NLP</category>
