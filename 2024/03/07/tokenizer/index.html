@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.2.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha256-wiz7ZSCn/btzhjKDQBms9Hx4sSeUYsDrTLg7roPstac=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/silver/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"cultivater.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"livere","storage":true,"lazyload":false,"nav":null,"activeClass":"livere"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="谈谈NLP中的tokenizer(近期摸鱼专用)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NLP-tokenizer">
+<meta property="og:url" content="https://cultivater.github.io/2024/03/07/tokenizer/index.html">
+<meta property="og:site_name" content="Haruki&#39;s Weird Blog">
+<meta property="og:description" content="谈谈NLP中的tokenizer(近期摸鱼专用)">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-03-07T08:13:05.000Z">
+<meta property="article:modified_time" content="2024-06-25T14:25:23.240Z">
+<meta property="article:author" content="Haruki">
+<meta property="article:tag" content="tokenizer">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://cultivater.github.io/2024/03/07/tokenizer/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://cultivater.github.io/2024/03/07/tokenizer/","path":"2024/03/07/tokenizer/","title":"NLP-tokenizer"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>NLP-tokenizer | Haruki's Weird Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Haruki's Weird Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">quit overthinking, stay stupid</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#tokenizer%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">1.</span> <span class="nav-text">1. tokenizer的作用？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#wordpiece"><span class="nav-number">2.</span> <span class="nav-text">2. WordPiece</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#bpe-byte-pair-encoding"><span class="nav-number">3.</span> <span class="nav-text">3. BPE (Byte Pair Encoding)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#bbpe-byte-level-bpe"><span class="nav-number">4.</span> <span class="nav-text">4. BBPE (Byte-level BPE)</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Haruki</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="sidebar-button animated">
+    <button><i class="fa fa-comment"></i>
+      Chat
+    </button>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://cultivater.github.io/2024/03/07/tokenizer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Haruki">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Haruki's Weird Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="NLP-tokenizer | Haruki's Weird Blog">
+      <meta itemprop="description" content="谈谈NLP中的tokenizer(近期摸鱼专用)">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          NLP-tokenizer
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2024-03-07 16:13:05" itemprop="dateCreated datePublished" datetime="2024-03-07T16:13:05+08:00">2024-03-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2024-06-25 22:25:23" itemprop="dateModified" datetime="2024-06-25T22:25:23+08:00">2024-06-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/NLP/" itemprop="url" rel="index"><span itemprop="name">NLP</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">谈谈NLP中的tokenizer(近期摸鱼专用)</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>写在前面：现在兼职作为一个技术博客，随缘更新，取决于摸鱼时间多不多。</p>
+<h1 id="tokenizer的作用">1. tokenizer的作用？</h1>
+<p>在英文及某些拉丁语系中，词(word)是语义表达的最小粒度。而中文/日语这种语言中，word可以进一步被拆成字(char)来表示独立的语义。但其实用char-level来理解中文很不稳定，一方面丢失了词的语义信息，另一方面，模型输入会变得很长，这使得模型的训练更加复杂难以收敛，这也是为什么在BERT出现之前，中文的NLP任务会比英文多一个segmentation阶段：词的语义表达会相对更准确。</p>
+<p>进入pre-train时代后，模型处理文本的粒度从word更细分到token粒度，token可以是一个字、词、标识符等等。token相当于是一种word-&gt;char的中间态，它的出现主要是为了解决这几个问题：</p>
+<ol type="1">
+<li>OOV，没见过的词统一被表示成<UNK></li>
+<li>低频词无法得到充分的学习</li>
+<li>词形变化，单复数，时态等同义词被不同的编码表示</li>
+<li>词表太大，尤其是多语言模型</li>
+<li>需要对没有天然分隔符语言额外进行分词</li>
+</ol>
+<p>BERT tokenizer的例子： <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">model_path = <span class="string">&quot;bert-base-uncased&quot;</span></span><br><span class="line">tokenizer = BertTokenizer.from_pretrained(model_path)</span><br><span class="line">inputs = <span class="string">&quot;I am Haruki&quot;</span></span><br><span class="line"><span class="built_in">print</span>(tokenizer.tokenize(inputs))</span><br><span class="line"><span class="comment"># [&#x27;i&#x27;, &#x27;am&#x27;, &#x27;ha&#x27;, &#x27;##ru&#x27;, &#x27;##ki&#x27;]</span></span><br></pre></td></tr></table></figure> i, am被正常切割，haruki为何被切成了3个token?</p>
+<p>实际上输出的token序列是根据Tokenizer中已经生成好的词表进行匹配（过程类似最大前向匹配），匹配过程中如果词表中存在该token就直接输出，没有就输出特殊符号[UNK]。因此本质上是Tokenizer中的词表决定生成文本切词方式，而决定Tokenizer中词表生成则是由不同的分词算法所决定。</p>
+<p>&quot;I&quot;，&quot;am&quot;存在于该Tokenizer的词表中，作为单个token，而&quot;Haruki&quot;在词表中并没有作为独立的token，在词表中存在匹配的token是&quot;ha&quot;，&quot;##ru&quot;，&quot;##ki&quot;。那么可以看出Tokenizer中的词表直接影响实际分词效果，那么这个Tokenizer分词器是怎么生成？ 先埋个坑，下次摸鱼时分别总结😋</p>
+<ul>
+<li>WordPiece (BERT)</li>
+<li>BPE、BBPE (RoBerta, GPT-2)</li>
+<li>ULM (UniLM)</li>
+</ul>
+<h1 id="wordpiece">2. WordPiece</h1>
+<p>最早出现在<a target="_blank" rel="noopener" href="https://static.googleusercontent.com/media/research.google.com/zh-CN//pubs/archive/37842.pdf">Japanese and Korean voice search 2012</a>。一言蔽之，就是先拆后和：</p>
+<ul>
+<li>每个word拆成subword， 例如hello -&gt; h, ##e, ##l, ##o。对语料库中所有subword统计词频</li>
+<li>计算subword之间的互信息，取最大的那一对，合并后加入词汇表中</li>
+<li>更新词频，重复迭代，直到词表大小达到预设值或者满足其它停止条件</li>
+</ul>
+<p>互信息： <span class="math display">\[\log P(t_z) - (\log P(t_x) + \log P(t_y))=\log (\frac{P(t_z)}{\log P(t_x)P(t_y)})\]</span></p>
+<p>两个词一起出现的概率比它们各自单独出现的概率要大时，即是它们需要合并的情况，而每次迭代会取互信息最大的那个。</p>
+<h1 id="bpe-byte-pair-encoding">3. BPE (Byte Pair Encoding)</h1>
+<p>最早出自<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1508.07909.pdf">Neural Machine Translation of Rare Words with Subword Units 2015</a>，是一种数据压缩算法。GPT-2、RoBERTa、XLM 使用的都是BPE/BBPE。算法步骤：</p>
+<ol type="1">
+<li>准备训练语料，设定词表大小；</li>
+<li>准备基础词表：比如英文中26个字母加上各种符号；</li>
+<li>基于基础词表将语料中的单词按照char粒度切开，并在末尾添加后缀“ &lt;/ w&gt;”；本阶段的subword的粒度是字符。例如单词“ low”的频率为5，那么我们将其改写为“ l o w &lt;/ w&gt;”：5；</li>
+<li>统计每一个连续字节对的出现频率，选择最高频的字符对合并成新的subword；</li>
+<li>重复第4步直到达到第1步设定的subword词表大小；或下一个最高频的字节对出现频率=1；</li>
+</ol>
+<p>单看每一轮操作完词表的数量可能增大，也可能减少。但整体上，随着合并的次数增加，词表总数通常先增大，后逐步减少到趋于一个稳定值。经典的贪心策略，很高效。</p>
+<h1 id="bbpe-byte-level-bpe">4. BBPE (Byte-level BPE)</h1>
+<p>BPE基本上解决了英文NLP中的问题1~4。但对于中文和日语来说，稀有字符仍然会占用词表空间，分词后的OOV问题仍然存在。考虑到任何语言都可用utf-8编码，所有的单词或者字符都是由字节拼接而成的，例如英文字符基本都是1个字节，中文汉字通常需要2～3个字节，BBPE考虑将一段文本的UTF-8编码中的一个字节：256位不同的编码作为词表的初始化基础Subword。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/tokenizer/" rel="tag"># tokenizer</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/03/04/Origin/" rel="prev" title="此博客的由来">
+                  <i class="fa fa-angle-left"></i> 此博客的由来
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/03/08/distributed-DBSCAN/" rel="next" title="distributed_DBSCAN">
+                  distributed_DBSCAN <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments" id="lv-container" data-id="city" data-uid="MTAyMC81OTYwNy8zNjA2OQ=="></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Haruki</span>
+  </div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/cultivater" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+<script class="next-config" data-name="chatra" type="application/json">{"enable":true,"async":true,"id":"SRvcANqXwvnZGbtNZ"}</script>
+<script src="/js/third-party/chat/chatra.js"></script>
+<script async src="https://call.chatra.io/chatra.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: '16px',
+  left: 'unset',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+<script src="/js/third-party/comments/livere.js"></script>
+
+</body>
+</html>
